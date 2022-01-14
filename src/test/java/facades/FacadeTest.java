@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dtos.user.BoatDTO;
 import dtos.user.UserDTO;
+import entities.Boat;
 import entities.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,17 +18,15 @@ import utils.StartDataSet;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FacadeTest {
 
     private static EntityManagerFactory emf;
     private static UserFacade userFacade;
-    private static ExamFacade facade;
-
-
-
+    private static BoatFacade boatFacade;
 
 
     public FacadeTest() {
@@ -35,8 +35,8 @@ public class FacadeTest {
     @BeforeAll
     public static void setUpClass() {
         emf = EMF_Creator.createEntityManagerFactoryForTest();
-        facade = ExamFacade.getExamFacade(emf);
         userFacade = UserFacade.getUserFacade(emf);
+        boatFacade = BoatFacade.getBoatFacade(emf);
     }
 
 
@@ -46,45 +46,70 @@ public class FacadeTest {
         StartDataSet.setupInitialData(emf);
     }
 
-
-    // TODO: Delete or change this method
     @Test
-    public void testTrue() throws Exception {
-        EntityManager em = emf.createEntityManager();
-        User _both;
-        try {
-            _both = em.find(User.class, StartDataSet.both.getUserName());
+    public void testVerifiedUser(){
+        User user = emf.createEntityManager().find(User.class, 4L);
 
-        } finally{
-            em.close();
+        assertTrue(user.verifyPassword("owner"), "Expected password to be 'owner'");
+    }
+
+    @Test
+    public void testCreateBoat() {
+        Boat boat = boatFacade.createBoat(new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image"));
+
+        assertNotNull(boat);
+        assertEquals(boat.getId(), 1);
+        assertEquals(boat.getOwnerId(), 4L);
+        assertEquals(boat.getName(), "Boaty McBoatFace");
+        assertEquals(boat.getBrand(), "Brand");
+        assertEquals(boat.getMake(), "Make");
+        assertEquals(boat.getYear(), 1996);
+        assertEquals(boat.getImg(), "Image");
+    }
+
+    @Test
+    public void testUpdateBoat() {
+        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        Boat boat = boatFacade.createBoat(boatDto);
+
+        boatDto.setId(boat.getId());
+
+        boatDto.setName("Bobby McBobFace");
+        boat = boatFacade.updateBoat(boatDto);
+
+        assertEquals(boat.getId(), 1); // Sikrer os at vi ikke har lavet en ny Boat.
+        assertEquals(boat.getName(), "Bobby McBobFace");
+    }
+
+    @Test
+    public void testGetBoatsByOwner() {
+        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+
+        for (int i = 0; i < 5; i++) {
+            boatFacade.createBoat(boatDto);
         }
 
+        boatDto.setOwnerId(1L);
+        boatFacade.createBoat(boatDto);
 
-        assertEquals(_both.getUserName(), StartDataSet.both.getUserName());
+        List<BoatDTO> boats = boatFacade.getBoatsByOwnerId(4L);
+        List<BoatDTO> allBoats = boatFacade.getAllBoats();
+
+        assertEquals(boats.size(), 5);
+        assertNotEquals(boats.size(), allBoats.size());
     }
-
-
 
     @Test
-    public void testCreateUser() throws Exception {
-        String username = "TEST_NEW_USER";
-        JsonObject inputJson = new JsonObject();
-        inputJson.addProperty("username", username);
-        inputJson.addProperty("password", "testUser");
-        JsonArray jsonArray = new JsonArray();
-        JsonObject roleObject = new JsonObject();
-        roleObject.addProperty("rolename", "user");
-        jsonArray.add(roleObject);
-        inputJson.add("roles", jsonArray);
+    public void testGetAllBoats() {
+        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        UserDTO userDTO = gson.fromJson(inputJson, UserDTO.class);
-        userFacade.createUser(userDTO);
+        for (int i = 0; i < 5; i++) {
+            boatFacade.createBoat(boatDto);
+        }
 
-        EntityManager em = emf.createEntityManager();
-        User user = em.find(User.class, username);
-        Assertions.assertNotNull(user);
+        List<BoatDTO> boats = boatFacade.getAllBoats();
+
+        assertEquals(boats.size(), 5);
     }
-
 
 }

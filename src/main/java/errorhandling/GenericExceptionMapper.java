@@ -14,8 +14,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class GenericExceptionMapper implements ExceptionMapper<Throwable>
-{
+public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -23,8 +22,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable>
     ServletContext context;
 
     @Override
-    public Response toResponse(Throwable ex)
-    {
+    public Response toResponse(Throwable ex) {
         Logger.getLogger(GenericExceptionMapper.class.getName()).log(Level.SEVERE, null, ex);
         Response.StatusType type = getStatusType(ex);
         ExceptionDTO err;
@@ -32,11 +30,14 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable>
             err = new ExceptionDTO(404, ex.getMessage());
         }
         //Add new exceptions as "else if" here if needed.
-        else if (ex instanceof RuntimeException){
+        else if (ex instanceof RuntimeException) {
+            ex.printStackTrace();
             err = new ExceptionDTO(500, "Internal server problem. Sorry for the inconvenience!");
         } else if (ex instanceof WebApplicationException) {
-            err = new ExceptionDTO(type.getStatusCode(), ((WebApplicationException) ex).getMessage());
+            ex.printStackTrace();
+            err = new ExceptionDTO(type.getStatusCode(), ex.getMessage());
         } else {
+            ex.printStackTrace();
             err = new ExceptionDTO(type.getStatusCode(), type.getReasonPhrase());
         }
         return Response.status(type.getStatusCode())
@@ -45,18 +46,15 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable>
                 build();
     }
 
-    private Response.StatusType getStatusType(Throwable ex)
-    {
-        if (ex instanceof WebApplicationException)
-        {
+    private Response.StatusType getStatusType(Throwable ex) {
+        if (ex instanceof WebApplicationException) {
             return ((WebApplicationException) ex).getResponse().getStatusInfo();
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
     //Small hack, to provide json-error response in the filter
-    public static Response makeErrRes(String msg, int status)
-    {
+    public static Response makeErrRes(String msg, int status) {
         ExceptionDTO error = new ExceptionDTO(status, msg);
         String errJson = gson.toJson(error);
         return Response.status(error.getCode())

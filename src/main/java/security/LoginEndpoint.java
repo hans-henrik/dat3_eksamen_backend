@@ -1,11 +1,6 @@
 package security;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -14,23 +9,24 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import entities.Role;
-import facades.UserFacade;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import entities.User;
 import errorhandling.API_Exception;
+import errorhandling.GenericExceptionMapper;
+import facades.UserFacade;
+import security.errorhandling.AuthenticationException;
+import utils.EMF_Creator;
+
+import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import security.errorhandling.AuthenticationException;
-import errorhandling.GenericExceptionMapper;
-import javax.persistence.EntityManagerFactory;
-import utils.EMF_Creator;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("login")
 public class LoginEndpoint {
@@ -55,9 +51,10 @@ public class LoginEndpoint {
         }
 
         try {
-            User user = USER_FACADE.getVeryfiedUser(username, password);
+            User user = USER_FACADE.getVerifiedUser(username, password);
             String token = createToken(username, user.getRolesAsStrings());
             JsonObject responseJson = new JsonObject();
+
             responseJson.addProperty("username", username);
             responseJson.addProperty("token", token);
             //adds roles to json response

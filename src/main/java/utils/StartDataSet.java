@@ -8,11 +8,10 @@ import javax.persistence.EntityManagerFactory;
 
 public class StartDataSet {
 
-    public static User user,admin,both;
+    public static User user,admin,both,owner;
     public static Role userRole,adminRole;
 
     public static void main(String[] args) {
-
         EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory();
         setupInitialData(emf);
     }
@@ -27,22 +26,33 @@ public class StartDataSet {
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
 
 
+            owner = new User("owner", "owner", "Bob", "12345678", "bob@bob.dk");
+            
+            user = new User("user", "testUser", "Gertrud", "87654321", "gert@rud.dk");
+            admin = new User("admin", "testAdmin", "David", "12348888", "da@vid.dk");
+            both = new User("user_admin", "testBoth", "Karl", "12312323", "ka@rl.dk");
 
-            user = new User("user", "testUser");
-            admin = new User("admin", "testAdmin");
-            both = new User("user_admin", "testBoth");
 
+
+            
             userRole = new Role("user");
             adminRole = new Role("admin");
 
+            owner.addRole(userRole);
+            
             user.addRole(userRole);
             admin.addRole(adminRole);
             both.addRole(userRole);
             both.addRole(adminRole);
-
+            
+            
+            
             em.persist(userRole);
             em.persist(adminRole);
 
+            
+            em.persist(owner);
+            
             em.persist(user);
             em.persist(admin);
             em.persist(both);
