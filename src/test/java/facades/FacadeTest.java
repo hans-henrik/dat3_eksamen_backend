@@ -25,9 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FacadeTest {
 
     private static EntityManagerFactory emf;
-    private static UserFacade userFacade;
     private static BoatFacade boatFacade;
-
 
     public FacadeTest() {
     }
@@ -35,7 +33,6 @@ public class FacadeTest {
     @BeforeAll
     public static void setUpClass() {
         emf = EMF_Creator.createEntityManagerFactoryForTest();
-        userFacade = UserFacade.getUserFacade(emf);
         boatFacade = BoatFacade.getBoatFacade(emf);
     }
 
@@ -48,18 +45,18 @@ public class FacadeTest {
 
     @Test
     public void testVerifiedUser(){
-        User user = emf.createEntityManager().find(User.class, 4L);
+        User user = emf.createEntityManager().find(User.class, 1L);
 
         assertTrue(user.verifyPassword("owner"), "Expected password to be 'owner'");
     }
 
     @Test
     public void testCreateBoat() {
-        Boat boat = boatFacade.createBoat(new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image"));
+        Boat boat = boatFacade.createBoat(new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image"));
 
         assertNotNull(boat);
         assertEquals(boat.getId(), 1);
-        assertEquals(boat.getOwnerId(), 4L);
+        assertEquals(boat.getOwnerId(), 1L);
         assertEquals(boat.getName(), "Boaty McBoatFace");
         assertEquals(boat.getBrand(), "Brand");
         assertEquals(boat.getMake(), "Make");
@@ -69,7 +66,7 @@ public class FacadeTest {
 
     @Test
     public void testUpdateBoat() {
-        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDto = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
         Boat boat = boatFacade.createBoat(boatDto);
 
         boatDto.setId(boat.getId());
@@ -77,31 +74,31 @@ public class FacadeTest {
         boatDto.setName("Bobby McBobFace");
         boat = boatFacade.updateBoat(boatDto);
 
-        assertEquals(boat.getId(), 1); // Sikrer os at vi ikke har lavet en ny Boat.
-        assertEquals(boat.getName(), "Bobby McBobFace");
+        assertEquals(1, boat.getId()); // Sikrer os at vi ikke har lavet en ny Boat.
+        assertEquals("Bobby McBobFace", boat.getName());
     }
 
     @Test
     public void testGetBoatsByOwner() {
-        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDto = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
 
         for (int i = 0; i < 5; i++) {
             boatFacade.createBoat(boatDto);
         }
 
-        boatDto.setOwnerId(1L);
+        boatDto.setOwnerId(2L);
         boatFacade.createBoat(boatDto);
 
-        List<BoatDTO> boats = boatFacade.getBoatsByOwnerId(4L);
+        List<BoatDTO> boats = boatFacade.getBoatsByOwnerId(1L);
         List<BoatDTO> allBoats = boatFacade.getAllBoats();
 
-        assertEquals(boats.size(), 5);
-        assertNotEquals(boats.size(), allBoats.size());
+        assertEquals(5, boats.size());
+        assertNotEquals(allBoats.size(), boats.size());
     }
 
     @Test
     public void testGetAllBoats() {
-        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDto = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
 
         for (int i = 0; i < 5; i++) {
             boatFacade.createBoat(boatDto);
@@ -109,7 +106,7 @@ public class FacadeTest {
 
         List<BoatDTO> boats = boatFacade.getAllBoats();
 
-        assertEquals(boats.size(), 5);
+        assertEquals(5, boats.size());
     }
 
 }

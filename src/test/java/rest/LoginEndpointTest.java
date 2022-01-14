@@ -76,16 +76,16 @@ public class LoginEndpointTest {
         given()
                 .contentType("application/json")
                 .body(json)
-                .when().post("/boat/create/4")
+                .when().post("/boat/create/1")
                 .then()
                 .body("id", equalTo(1))
-                .body("ownerId", equalTo(4));
+                .body("ownerId", equalTo(1));
     }
 
     @Test
     public void testUpdateBoat() {
         Gson gson = new GsonBuilder().create();
-        BoatDTO boatDTO = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDTO = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
         boatDTO = new BoatDTO(boatFacade.createBoat(boatDTO));
 
         boatDTO.setName("Bobby McBobFace");
@@ -102,18 +102,18 @@ public class LoginEndpointTest {
 
     @Test
     public void testGetBoatsByOwner() {
-        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDto = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
 
         for (int i = 0; i < 5; i++) {
             boatFacade.createBoat(boatDto);
         }
 
-        boatDto.setOwnerId(1L);
+        boatDto.setOwnerId(2L);
         boatFacade.createBoat(boatDto);
 
         given()
                 .contentType("application/json")
-                .when().get("/boat/show/4")
+                .when().get("/boat/show/1")
                 .then()
                 .body("size()", equalTo(5))
                 .body("size()", not(boatFacade.getAllBoats().size()));
@@ -121,7 +121,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testGetAllBoats() {
-        BoatDTO boatDto = new BoatDTO(null, 4L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
+        BoatDTO boatDto = new BoatDTO(null, 1L, "Boaty McBoatFace", "Brand", "Make", 1996, "Image");
 
         for (int i = 0; i < 5; i++) {
             boatFacade.createBoat(boatDto);

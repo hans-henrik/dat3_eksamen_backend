@@ -1,5 +1,7 @@
 package utils;
 
+import dtos.user.BoatDTO;
+import entities.Boat;
 import entities.Role;
 import entities.User;
 
@@ -10,6 +12,7 @@ public class StartDataSet {
 
     public static User user,admin,both,owner;
     public static Role userRole,adminRole;
+    public static Boat boat;
 
     public static void main(String[] args) {
         EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory();
@@ -22,9 +25,9 @@ public class StartDataSet {
         EntityManager em = _emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("User.deleteAllRows").executeUpdate();
+            em.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
-
+            em.createNativeQuery("TRUNCATE TABLE BOAT").executeUpdate();
 
             owner = new User("owner", "owner", "Bob", "12345678", "bob@bob.dk");
             

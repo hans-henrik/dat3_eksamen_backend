@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@NamedQuery(name = "Boat.deleteAllRows", query = "DELETE from Boat")
 public class Boat implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -20,7 +21,7 @@ public class Boat implements Serializable {
     private Long ownerId;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "OWNER_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "OWNER_ID", insertable = false, updatable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User owner;
 
     private String name;
