@@ -7,6 +7,7 @@ import entities.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.FlushModeType;
 
 public class StartDataSet {
 
@@ -23,6 +24,8 @@ public class StartDataSet {
     //Is called both from rest and test cases
     public static void setupInitialData(EntityManagerFactory _emf){
         EntityManager em = _emf.createEntityManager();
+        em.setFlushMode(FlushModeType.AUTO);
+
         try {
             em.getTransaction().begin();
             em.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
@@ -35,9 +38,6 @@ public class StartDataSet {
             admin = new User("admin", "testAdmin", "David", "12348888", "da@vid.dk");
             both = new User("user_admin", "testBoth", "Karl", "12312323", "ka@rl.dk");
 
-
-
-            
             userRole = new Role("user");
             adminRole = new Role("admin");
 
@@ -47,18 +47,14 @@ public class StartDataSet {
             admin.addRole(adminRole);
             both.addRole(userRole);
             both.addRole(adminRole);
-            
-            
-            
-            em.persist(userRole);
-            em.persist(adminRole);
 
-            
             em.persist(owner);
-            
             em.persist(user);
             em.persist(admin);
             em.persist(both);
+
+            em.persist(userRole);
+            em.persist(adminRole);
 
             em.getTransaction().commit();
 
