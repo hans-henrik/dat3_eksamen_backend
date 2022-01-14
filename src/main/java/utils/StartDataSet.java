@@ -24,13 +24,13 @@ public class StartDataSet {
     //Is called both from rest and test cases
     public static void setupInitialData(EntityManagerFactory _emf){
         EntityManager em = _emf.createEntityManager();
-        em.setFlushMode(FlushModeType.AUTO);
 
         try {
             em.getTransaction().begin();
             em.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
             em.createNativeQuery("TRUNCATE TABLE BOAT").executeUpdate();
+            em.getTransaction().commit();
 
             owner = new User("owner", "owner", "Bob", "12345678", "bob@bob.dk");
             
@@ -48,16 +48,18 @@ public class StartDataSet {
             both.addRole(userRole);
             both.addRole(adminRole);
 
+            em.getTransaction().begin();
             em.persist(owner);
+            em.getTransaction().commit();
+
+            em.getTransaction().begin();
             em.persist(user);
             em.persist(admin);
             em.persist(both);
 
             em.persist(userRole);
             em.persist(adminRole);
-
             em.getTransaction().commit();
-
         } finally {
             em.close();
         }
