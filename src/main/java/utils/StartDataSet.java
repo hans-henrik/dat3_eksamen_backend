@@ -33,7 +33,11 @@ public class StartDataSet {
             em.getTransaction().commit();
 
             owner = new User("owner", "owner", "Bob", "12345678", "bob@bob.dk");
-            
+
+            em.getTransaction().begin();
+            em.persist(owner);
+            em.getTransaction().commit();
+
             user = new User("user", "testUser", "Gertrud", "87654321", "gert@rud.dk");
             admin = new User("admin", "testAdmin", "David", "12348888", "da@vid.dk");
             both = new User("user_admin", "testBoth", "Karl", "12312323", "ka@rl.dk");
@@ -49,10 +53,7 @@ public class StartDataSet {
             both.addRole(adminRole);
 
             em.getTransaction().begin();
-            em.persist(owner);
-            em.getTransaction().commit();
-
-            em.getTransaction().begin();
+            em.merge(owner);
             em.persist(user);
             em.persist(admin);
             em.persist(both);
